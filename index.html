@@ -140,6 +140,8 @@
     </main>
 
     <script>
+        const STORAGE_KEY = "dance-test-faction-scores";
+
         const factions = [
             { name: "阵营 A", score: 0 },
             { name: "阵营 B", score: 0 },
@@ -150,6 +152,28 @@
 
         const chart = document.getElementById("chart");
         const controls = document.getElementById("controls");
+
+        function loadScores() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (Array.isArray(saved) && saved.length === factions.length) {
+                    saved.forEach((value, index) => {
+                        if (Number.isFinite(value) && value >= 0) {
+                            factions[index].score = value;
+                        }
+                    });
+                }
+            } catch {
+                /* ignore corrupted data */
+            }
+        }
+
+        function persistScores() {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(factions.map(f => f.score))
+            );
+        }
 
         function renderChart() {
             chart.innerHTML = "";
@@ -181,6 +205,7 @@
                 button.textContent = `${faction.name} +1`;
                 button.addEventListener("click", () => {
                     faction.score += 1;
+                    persistScores();
                     renderChart();
                 });
                 controls.appendChild(button);
@@ -191,9 +216,11 @@
             factions.forEach(f => {
                 f.score = 0;
             });
+            persistScores();
             renderChart();
         });
 
+        loadScores();
         renderChart();
         renderControls();
     </script>
