@@ -1,1 +1,163 @@
-Hi
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>阵营实时积分</title>
+    <style>
+        :root {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            color: #0f172a;
+            background: #f4f6fb;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scoreboard {
+            width: min(960px, 90vw);
+            background: #fff;
+            border-radius: 18px;
+            padding: 32px 40px 40px;
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.15);
+        }
+
+        h1 {
+            margin: 0 0 32px;
+            text-align: center;
+            font-size: clamp(1.8rem, 2vw, 2.4rem);
+            letter-spacing: 0.05em;
+        }
+
+        .chart {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 360px;
+            padding: 0 8px;
+            gap: 24px;
+        }
+
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bar {
+            width: 100%;
+            background: linear-gradient(180deg, #4f83ff, #315cc8);
+            border-radius: 10px 10px 4px 4px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: inset 0 -6px 18px rgba(0, 0, 0, 0.2);
+            transition: height 0.35s ease;
+        }
+
+        .bar-group span {
+            font-size: 1.1rem;
+        }
+
+        .label {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+
+        .controls {
+            margin-top: 36px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 999px;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            background: #2563eb;
+            box-shadow: 0 10px 18px rgba(37, 99, 235, 0.35);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <main class="scoreboard">
+        <h1>阵营实时积分</h1>
+        <section id="chart" class="chart"></section>
+        <section id="controls" class="controls"></section>
+    </main>
+
+    <script>
+        const factions = [
+            { name: "阵营 A", score: 37 },
+            { name: "阵营 B", score: 17 },
+            { name: "阵营 C", score: 22 },
+            { name: "阵营 D", score: 11 },
+            { name: "阵营 E", score: 34 }
+        ];
+
+        const chart = document.getElementById("chart");
+        const controls = document.getElementById("controls");
+
+        function renderChart() {
+            chart.innerHTML = "";
+            const maxScore = Math.max(...factions.map(f => f.score), 1);
+
+            factions.forEach(({ name, score }) => {
+                const group = document.createElement("div");
+                group.className = "bar-group";
+
+                const bar = document.createElement("div");
+                bar.className = "bar";
+                bar.style.height = `${(score / maxScore) * 100}%`;
+                bar.innerHTML = `<span>${score}</span>`;
+
+                const label = document.createElement("div");
+                label.className = "label";
+                label.textContent = name;
+
+                group.append(bar, label);
+                chart.appendChild(group);
+            });
+        }
+
+        function renderControls() {
+            controls.innerHTML = "";
+            factions.forEach((faction, index) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.textContent = `${faction.name} +1`;
+                button.addEventListener("click", () => {
+                    faction.score += 1;
+                    renderChart();
+                });
+                controls.appendChild(button);
+            });
+        }
+
+        renderChart();
+        renderControls();
+    </script>
+</body>
+</html>
