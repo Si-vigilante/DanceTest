@@ -28,10 +28,38 @@
         }
 
         h1 {
-            margin: 0 0 32px;
+            margin: 0;
             text-align: center;
             font-size: clamp(1.8rem, 2vw, 2.4rem);
             letter-spacing: 0.05em;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .header .reset-btn {
+            position: absolute;
+            left: 0;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            background: #0f172a;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 12px 18px rgba(15, 23, 42, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .header .reset-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 8px 12px rgba(15, 23, 42, 0.35);
         }
 
         .chart {
@@ -103,18 +131,21 @@
 </head>
 <body>
     <main class="scoreboard">
-        <h1>阵营实时积分</h1>
+        <div class="header">
+            <button id="resetBtn" class="reset-btn" type="button">初始化积分</button>
+            <h1>阵营实时积分</h1>
+        </div>
         <section id="chart" class="chart"></section>
         <section id="controls" class="controls"></section>
     </main>
 
     <script>
         const factions = [
-            { name: "阵营 A", score: 37 },
-            { name: "阵营 B", score: 17 },
-            { name: "阵营 C", score: 22 },
-            { name: "阵营 D", score: 11 },
-            { name: "阵营 E", score: 34 }
+            { name: "阵营 A", score: 0 },
+            { name: "阵营 B", score: 0 },
+            { name: "阵营 C", score: 0 },
+            { name: "阵营 D", score: 0 },
+            { name: "阵营 E", score: 0 }
         ];
 
         const chart = document.getElementById("chart");
@@ -155,6 +186,13 @@
                 controls.appendChild(button);
             });
         }
+
+        document.getElementById("resetBtn").addEventListener("click", () => {
+            factions.forEach(f => {
+                f.score = 0;
+            });
+            renderChart();
+        });
 
         renderChart();
         renderControls();
