@@ -1,228 +1,527 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>阵营实时积分</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摄影感悟：关于时间与光的记录</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-            color: #0f172a;
-            background: #f4f6fb;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
+        
         body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .scoreboard {
-            width: min(960px, 90vw);
-            background: #fff;
-            border-radius: 18px;
-            padding: 32px 40px 40px;
-            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.15);
-        }
-
-        h1 {
-            margin: 0;
-            text-align: center;
-            font-size: clamp(1.8rem, 2vw, 2.4rem);
-            letter-spacing: 0.05em;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background-color: #f9f9f9;
+            background-image: linear-gradient(to bottom, #f5f5f5 0%, #f0f0f0 100%);
+            padding: 0;
+            max-width: 1200px;
+            margin: 0 auto;
             position: relative;
-            margin-bottom: 32px;
         }
-
-        .header .reset-btn {
-            position: absolute;
-            left: 0;
-            padding: 8px 18px;
-            border-radius: 999px;
-            border: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            background: #0f172a;
-            color: #fff;
-            cursor: pointer;
-            box-shadow: 0 12px 18px rgba(15, 23, 42, 0.25);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        
+        /* 装饰性背景元素 */
+        .bg-element {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.05;
         }
-
-        .header .reset-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 8px 12px rgba(15, 23, 42, 0.35);
+        
+        .bg-element.camera {
+            top: 10%;
+            right: 5%;
+            font-size: 300px;
+            color: #8B7355;
         }
-
-        .chart {
+        
+        .bg-element.aperture {
+            bottom: 15%;
+            left: 5%;
+            font-size: 200px;
+            color: #8B7355;
+        }
+        
+        .container {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            height: 360px;
-            padding: 0 8px;
-            gap: 24px;
+            flex-direction: column;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+            background-color: white;
         }
-
-        .bar-group {
+        
+        header {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        main {
             flex: 1;
+            padding: 60px 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .content-section {
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: #8B7355;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background-color: #D4AF37;
+        }
+        
+        .quote {
+            font-style: italic;
+            font-size: 1.3rem;
+            line-height: 1.7;
+            color: #666;
+            border-left: 4px solid #D4AF37;
+            padding-left: 25px;
+            margin: 30px 0;
+            background-color: #fcf9f3;
+            padding: 25px;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .quote-author {
+            text-align: right;
+            margin-top: 15px;
+            font-size: 1rem;
+            color: #888;
+        }
+        
+        p {
+            font-size: 1.15rem;
+            margin-bottom: 25px;
+            color: #444;
+            text-align: justify;
+        }
+        
+        .highlight {
+            background-color: rgba(212, 175, 55, 0.1);
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 50px 0;
+        }
+        
+        .image-placeholder {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            height: 250px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-        }
-
-        .bar {
-            width: 100%;
-            background: linear-gradient(180deg, #4f83ff, #315cc8);
-            border-radius: 10px 10px 4px 4px;
-            display: flex;
-            align-items: flex-end;
             justify-content: center;
-            color: #fff;
+            color: #aaa;
+            border: 2px dashed #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .image-placeholder:hover {
+            border-color: #D4AF37;
+            background-color: #fcf9f3;
+        }
+        
+        .image-placeholder i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        
+        .image-placeholder span {
+            font-size: 0.9rem;
+        }
+        
+        .devices {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+        }
+        
+        .device-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            min-width: 150px;
+            transition: transform 0.3s ease;
+        }
+        
+        .device-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .device-icon {
+            font-size: 40px;
+            color: #8B7355;
+            margin-bottom: 10px;
+        }
+        
+        .device-name {
             font-weight: 600;
-            box-shadow: inset 0 -6px 18px rgba(0, 0, 0, 0.2);
-            transition: height 0.35s ease;
+            color: #555;
         }
-
-        .bar-group span {
-            font-size: 1.1rem;
-        }
-
-        .label {
+        
+        .thankyou {
+            background-color: #fcf9f3;
+            padding: 40px;
+            border-radius: 10px;
+            margin-top: 60px;
             text-align: center;
+            border-left: 5px solid #D4AF37;
+        }
+        
+        .thankyou p {
+            font-size: 1.2rem;
+            color: #555;
+            text-align: center;
+        }
+        
+        .egg {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(139, 115, 85, 0.05) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .egg h3 {
+            font-size: 1.5rem;
+            color: #8B7355;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .egg-content {
+            font-size: 1.1rem;
+            color: #666;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+        
+        footer {
+            background-color: #333;
+            color: #ddd;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+        
+        footer p {
+            color: #ddd;
+            margin-bottom: 10px;
             font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
         }
-
-        .controls {
-            margin-top: 36px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
+        
+        .footer-note {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 20px;
         }
-
-        button {
-            cursor: pointer;
-            border: none;
-            border-radius: 999px;
-            padding: 12px 18px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #fff;
-            background: #2563eb;
-            box-shadow: 0 10px 18px rgba(37, 99, 235, 0.35);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            main {
+                padding: 40px 25px;
+            }
+            
+            .image-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            
+            .devices {
+                gap: 15px;
+            }
+            
+            .device-item {
+                min-width: 120px;
+            }
+            
+            .quote {
+                font-size: 1.2rem;
+                padding: 20px;
+            }
         }
-
-        button:active {
-            transform: translateY(1px);
-            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            header {
+                padding: 70px 20px;
+            }
+            
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .devices {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .device-item {
+                width: 80%;
+            }
         }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content-section, .image-gallery, .thankyou, .egg {
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .content-section:nth-child(2) { animation-delay: 0.2s; }
+        .content-section:nth-child(3) { animation-delay: 0.4s; }
+        .image-gallery { animation-delay: 0.6s; }
+        .thankyou { animation-delay: 0.8s; }
+        .egg { animation-delay: 1s; }
     </style>
 </head>
 <body>
-    <main class="scoreboard">
-        <div class="header">
-            <button id="resetBtn" class="reset-btn" type="button">初始化积分</button>
-            <h1>阵营实时积分</h1>
-        </div>
-        <section id="chart" class="chart"></section>
-        <section id="controls" class="controls"></section>
-    </main>
-
+    <!-- 装饰性背景元素 -->
+    <div class="bg-element camera">
+        <i class="fas fa-camera"></i>
+    </div>
+    <div class="bg-element aperture">
+        <i class="fas fa-circle-notch"></i>
+    </div>
+    
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>摄影感悟</h1>
+                <div class="subtitle">关于时间、光与记忆的碎片——镜头下的世界与内心回响</div>
+            </div>
+        </header>
+        
+        <main>
+            <section class="content-section">
+                <h2>后记：摄影带给我什么？</h2>
+                <p>最近读到苏珊·桑塔格的《论摄影》，她写：<span class="highlight">"按下快门的瞬间，图像就形成了，但它掩盖了那个关键时刻。"</span>但我并不这么想，我不认为摄影会掩盖时刻。</p>
+                <p>起初，我只是想留住那片偶遇的晚霞，那抹天光将尽时温柔的橘红。</p>
+                <p>后来才渐渐明白，摄影给予人的，是一种近乎奢侈的时差。它让流动的岁月有了可以停留的驿站，让消逝的瞬间变成可以重返的渡口。镜头之前，时间不是线性的逝去，而是可以被折叠、收藏、反复摩挲的礼物。</p>
+                <p>于是我不再只是拍摄风景，也开始凝视时间的痕迹——老屋墙缝里生长的青苔，人们奔跑时扬起的衣角……</p>
+                <p>也许多年之后，当记忆褪成模糊的水彩，这些定格下的"此刻"依然清晰如吻。我们会因为一张泛光的旧照突然静默，会被某个遥远的黄昏再次浸透。</p>
+                <p>摄影最终赠与我们的，或许不是答案，而是无数次温柔的回响——在那些被定格的"关键时刻"里，我们一次次认出自己，也认出那些我们深爱过，却终将流逝的万物。</p>
+                <p>它不只关乎远方与诗意，更关乎我们如何在这奔流的世界里，轻轻捧住几粒属于自己的光。</p>
+            </section>
+            
+            <section class="content-section">
+                <h2>视觉记录</h2>
+                <p>以下是我用镜头捕捉的一些时刻，每一张照片都是一个故事，一段记忆，一次与世界的对话。</p>
+                
+                <div class="image-gallery">
+                    <!-- 图片位置1 -->
+                    <div class="image-placeholder">
+                        <i class="fas fa-mountain-sun"></i>
+                        <span>点击上传晚霞照片</span>
+                    </div>
+                    
+                    <!-- 图片位置2 -->
+                    <div class="image-placeholder">
+                        <i class="fas fa-leaf"></i>
+                        <span>点击上传青苔细节</span>
+                    </div>
+                    
+                    <!-- 图片位置3 -->
+                    <div class="image-placeholder">
+                        <i class="fas fa-person-running"></i>
+                        <span>点击上传动态瞬间</span>
+                    </div>
+                    
+                    <!-- 图片位置4 -->
+                    <div class="image-placeholder">
+                        <i class="fas fa-house-chimney"></i>
+                        <span>点击上传老屋记忆</span>
+                    </div>
+                    
+                    <!-- 图片位置5 -->
+                    <div class="image-placeholder">
+                        <i class="fas fa-sun"></i>
+                        <span>点击上传光影时刻</span>
+                    </div>
+                    
+                    <!-- 图片位置6 -->
+                    <div class="image-placeholder">
+                        <i class="fas fa-water"></i>
+                        <span>点击上传水波倒影</span>
+                    </div>
+                </div>
+                
+                <div class="quote">
+                    "我们不只是用相机拍照，我们带到摄影中去的是所有我们读过的书、看过的电影、听过的音乐、爱过的人。"
+                    <div class="quote-author">—— 安塞尔·亚当斯</div>
+                </div>
+            </section>
+            
+            <section class="content-section">
+                <h2>拍摄设备</h2>
+                <p>不同的工具，同样的热爱。每一台设备都是我探索视觉世界的伙伴，记录着不同阶段对摄影的理解与感悟。</p>
+                
+                <div class="devices">
+                    <div class="device-item">
+                        <div class="device-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="device-name">尼康 D5200</div>
+                    </div>
+                    
+                    <div class="device-item">
+                        <div class="device-icon">
+                            <i class="fas fa-camera-retro"></i>
+                        </div>
+                        <div class="device-name">玛米亚新闻机</div>
+                    </div>
+                    
+                    <div class="device-item">
+                        <div class="device-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="device-name">iPhone 15</div>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="thankyou">
+                <p>感谢任课老师的精心讲授以及耐心授课，带我们走进摄影的世界！</p>
+                <p>这门课不仅教会了我如何构图、用光，更让我学会了如何观察世界、感受生活。</p>
+            </div>
+            
+            <div class="egg">
+                <h3>彩蛋</h3>
+                <div class="egg-content">
+                    Future Design & Design For Future！
+                </div>
+                <p style="margin-top: 15px; font-size: 1rem; color: #888;">摄影不仅是记录当下，更是为未来设计回忆</p>
+            </div>
+        </main>
+        
+        <footer>
+            <p>摄影感悟 · 静态网页展示</p>
+            <p>© 2023 摄影与视觉艺术 · 保留所有瞬间的权利</p>
+            <p class="footer-note">本页面使用纯HTML/CSS构建，适合GitHub Pages部署</p>
+        </footer>
+    </div>
+    
     <script>
-        const STORAGE_KEY = "dance-test-faction-scores";
-
-        const factions = [
-            { name: "阵营 A", score: 0 },
-            { name: "阵营 B", score: 0 },
-            { name: "阵营 C", score: 0 },
-            { name: "阵营 D", score: 0 },
-            { name: "阵营 E", score: 0 }
-        ];
-
-        const chart = document.getElementById("chart");
-        const controls = document.getElementById("controls");
-
-        function loadScores() {
-            try {
-                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                if (Array.isArray(saved) && saved.length === factions.length) {
-                    saved.forEach((value, index) => {
-                        if (Number.isFinite(value) && value >= 0) {
-                            factions[index].score = value;
-                        }
-                    });
+        // 简单的交互效果：点击图片占位符可以上传图片
+        document.querySelectorAll('.image-placeholder').forEach(placeholder => {
+            placeholder.addEventListener('click', function() {
+                // 在实际应用中，这里会触发文件上传
+                // 这里我们只是模拟上传后的效果
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>上传中...</span>';
+                
+                setTimeout(() => {
+                    this.style.backgroundImage = 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80)';
+                    this.style.backgroundSize = 'cover';
+                    this.style.backgroundPosition = 'center';
+                    this.innerHTML = '';
+                    this.style.border = '2px solid #D4AF37';
+                }, 1500);
+            });
+            
+            // 添加悬停效果
+            placeholder.addEventListener('mouseenter', function() {
+                if (!this.style.backgroundImage) {
+                    this.style.transform = 'scale(1.02)';
                 }
-            } catch {
-                /* ignore corrupted data */
-            }
-        }
-
-        function persistScores() {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(factions.map(f => f.score))
-            );
-        }
-
-        function renderChart() {
-            chart.innerHTML = "";
-            const maxScore = Math.max(...factions.map(f => f.score), 1);
-
-            factions.forEach(({ name, score }) => {
-                const group = document.createElement("div");
-                group.className = "bar-group";
-
-                const bar = document.createElement("div");
-                bar.className = "bar";
-                bar.style.height = `${(score / maxScore) * 100}%`;
-                bar.innerHTML = `<span>${score}</span>`;
-
-                const label = document.createElement("div");
-                label.className = "label";
-                label.textContent = name;
-
-                group.append(bar, label);
-                chart.appendChild(group);
             });
-        }
-
-        function renderControls() {
-            controls.innerHTML = "";
-            factions.forEach((faction, index) => {
-                const button = document.createElement("button");
-                button.type = "button";
-                button.textContent = `${faction.name} +1`;
-                button.addEventListener("click", () => {
-                    faction.score += 1;
-                    persistScores();
-                    renderChart();
-                });
-                controls.appendChild(button);
+            
+            placeholder.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
             });
-        }
-
-        document.getElementById("resetBtn").addEventListener("click", () => {
-            factions.forEach(f => {
-                f.score = 0;
-            });
-            persistScores();
-            renderChart();
         });
-
-        loadScores();
-        renderChart();
-        renderControls();
+        
+        // 页面加载时的淡入效果
+        window.addEventListener('load', () => {
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 1s';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+        });
     </script>
 </body>
 </html>
