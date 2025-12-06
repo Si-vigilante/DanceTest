@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>活动积分看板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background: #020617;
+      border-radius: 24px;
+      padding: 28px 22px 32px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 6px 0 2px;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      margin: 0 0 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #9ca3af;
+      margin-bottom: 0;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      color: #9ca3af;
+      padding: 0 6px;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      margin-right: 6px;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+    }
+
+    .last-updated {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score-board {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.12));
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .score-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .score-card .top-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .score-card .icon-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .score-card .name {
+      font-size: 0.95rem;
+      color: #e5e7eb;
+    }
+
+    .score-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #22c55e;
+      line-height: 1;
+    }
+
+    .chart-wrapper {
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.2), transparent),
+                  radial-gradient(circle at bottom, rgba(129, 140, 248, 0.25), transparent);
+      border-radius: 20px;
+      padding: 22px 20px 10px;
+      margin-bottom: 4px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    canvas {
+      min-height: 440px;
+      max-height: 520px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+      }
+
+      .score-board {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 18px 14px 22px;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      .subtitle {
+        font-size: 0.85rem;
+      }
+    .score-card .name {
+      font-size: 0.9rem;
+    }
+    .score-card .value {
+      font-size: 1.6rem;
+    }
+    .score-card .icon-badge {
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+    }
+      canvas {
+        min-height: 320px;
+        max-height: 380px;
+      }
+    }
+
+    .camp-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 18px;
+      padding: 10px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .camp-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .camp-name {
+      font-size: 0.95rem;
+    }
+
+    .camp-score {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.45);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 40px rgba(34, 197, 94, 0.6);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 18px rgba(34, 197, 94, 0.35);
+    }
+
+    .btn.reset {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fef2f2;
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn.reset:hover {
+      box-shadow: 0 14px 40px rgba(239, 68, 68, 0.55);
+    }
+
+    .btn.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .footer {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    /* 简易授权弹窗 */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .auth-dialog {
+      background: #0b1224;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 18px;
+      padding: 18px 18px 14px;
+      width: min(420px, 92vw);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+    .auth-title {
+      font-size: 1.1rem;
+      margin: 0 0 8px;
+      text-align: center;
+    }
+    .auth-desc {
+      margin: 0 0 14px;
+      color: #cbd5e1;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.7);
+      color: #f9fafb;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      outline: none;
+    }
+    .auth-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .auth-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.12s ease;
+    }
+    .auth-btn.confirm {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      box-shadow: 0 10px 25px rgba(34, 197, 94, 0.35);
+    }
+    .auth-btn.view {
+      background: rgba(148, 163, 184, 0.2);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+    .auth-btn:hover {
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>"鹏城星夜，创享未来"文化游园舞会公司积分实时榜</h1>
+      <div class="subtitle">四大阵营实时积分</div>
+    </div>
+
+    <div class="score-board" id="score-board">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="status-bar">
+      <div><span class="status-dot"></span>服务器已连接</div>
+      <div class="last-updated">最后更新：--</div>
+    </div>
+
+    <div class="chart-wrapper">
+      <canvas id="scoreChart"></canvas>
+    </div>
+
+    <div class="controls" id="controls"></div>
+
+    <div class="footer">
+      建议所有工作人员都打开这个页面，任何设备加分后，所有设备的图表都会一起更新。
+    </div>
+  </div>
+
+  <script>
+    // 阵营配置（名字 & 对应 key，要和后端一致）
+    const CAMPS = [
+      {
+        key: 'camp1',
+        name: '大碴子钢铁公司',
+        icon: '⛓',
+        color: 'linear-gradient(135deg, #60a5fa, #2563eb)'
+      },
+      {
+        key: 'camp2',
+        name: '熊猫爱吃菌子火锅公司',
+        icon: '🐼',
+        color: 'linear-gradient(135deg, #34d399, #10b981)'
+      },
+      {
+        key: 'camp3',
+        name: '大湾鸡有限公司',
+        icon: '🐔',
+        color: 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+      },
+      {
+        key: 'camp4',
+        name: '江南 style 有限公司',
+        icon: '🎵',
+        color: 'linear-gradient(135deg, #a78bfa, #8b5cf6)'
+      }
+    ];
+
+    const apiBase = ''; // 同域部署时保持空即可，例如 http://你的服务器:端口/ 就能访问
+
+    const lastUpdatedEl = document.querySelector('.last-updated');
+    const controlsEl = document.getElementById('controls');
+    const scoreBoardEl = document.getElementById('score-board');
+    let canOperate = false;
+
+    // 顶部实时积分卡片
+    CAMPS.forEach(camp => {
+      const card = document.createElement('div');
+      card.className = 'score-card';
+      card.innerHTML = `
+        <div class="top-line">
+          <div class="icon-badge" style="background:${camp.color};">${camp.icon}</div>
+          <div class="name">${camp.name}</div>
+        </div>
+        <div class="value" data-score-card="${camp.key}">0</div>
+      `;
+      scoreBoardEl.appendChild(card);
+    });
+
+    // 生成每个阵营卡片 + 按钮
+    CAMPS.forEach(camp => {
+      const card = document.createElement('div');
+      card.className = 'camp-card';
+      card.innerHTML = `
+        <div class="camp-info">
+          <div class="camp-name">${camp.name}</div>
+          <div class="camp-score" data-score-text="${camp.key}">当前积分：0</div>
+        </div>
+        <button class="btn" data-camp="${camp.key}">
+          <span>+1 积分</span>
+        </button>
+      `;
+      controlsEl.appendChild(card);
+    });
+
+    // 重置积分按钮
+    const resetCard = document.createElement('div');
+    resetCard.className = 'camp-card';
+    resetCard.innerHTML = `
+      <div class="camp-info">
+        <div class="camp-name">重置积分</div>
+        <div class="camp-score">需要密码确认</div>
+      </div>
+      <button class="btn reset" id="reset-btn">
+        <span>重置所有阵营</span>
+      </button>
+    `;
+    controlsEl.appendChild(resetCard);
+
+    // Bar chart 初始化
+    const isSmallScreen = window.matchMedia('(max-width: 640px)').matches;
+    const ctx = document.getElementById('scoreChart').getContext('2d');
+    const barValuePlugin = {
+      id: 'barValuePlugin',
+      afterDatasetsDraw(chartInstance) {
+        const { ctx: c } = chartInstance;
+        const minY = (chartInstance.scales?.y?.top ?? 0) + 36; // 留出顶部空间避免被遮挡
+        chartInstance.data.datasets.forEach((dataset, datasetIndex) => {
+          const meta = chartInstance.getDatasetMeta(datasetIndex);
+          meta.data.forEach((bar, index) => {
+            const value = dataset.data[index] ?? 0;
+            c.save();
+            c.fillStyle = '#f9fafb';
+            const fontSize = isSmallScreen ? 22 : 30;
+            c.font = `${fontSize}px "Segoe UI", system-ui, sans-serif`;
+            c.textAlign = 'center';
+            c.textBaseline = 'bottom';
+            const yPos = Math.max(bar.y - 16, minY);
+            c.fillText(value, bar.x, yPos);
+            c.restore();
+          });
+        });
+      }
+    };
+    Chart.register(barValuePlugin);
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: CAMPS.map(c => c.name),
+        datasets: [{
+          label: '阵营积分',
+          data: [0, 0, 0, 0],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        layout: {
+          padding: {
+            top: isSmallScreen ? 20 : 32
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0, // 显示整数
+              color: '#e5e7eb',
+              font: { size: isSmallScreen ? 12 : 14 }
+            },
+            grid: {
+              color: 'rgba(148, 163, 184, 0.15)'
+            }
+          },
+          x: {
+            ticks: {
+              color: '#e5e7eb',
+              font: { size: isSmallScreen ? 12 : 14 }
+            },
+            grid: {
+              display: false
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#e5e7eb',
+              font: { size: isSmallScreen ? 12 : 14 }
+            }
+          }
+        }
+      }
+    });
+
+    function setButtonsDisabled(disabled) {
+      document.querySelectorAll('.btn').forEach(btn => {
+        if (disabled) {
+          btn.classList.add('disabled');
+          btn.disabled = true;
+        } else {
+          btn.classList.remove('disabled');
+          btn.disabled = false;
+        }
+      });
+    }
+
+    // 从服务器获取最新积分
+    async function fetchScores() {
+      try {
+        const res = await fetch(apiBase + '/api/scores');
+        const data = await res.json();
+
+        // 更新图表数据
+        chart.data.datasets[0].data = CAMPS.map(c => data[c.key] ?? 0);
+        chart.update();
+
+        // 更新每个阵营的文字积分
+        CAMPS.forEach(c => {
+          const el = document.querySelector(`[data-score-text="${c.key}"]`);
+          if (el) el.textContent = `当前积分：${data[c.key] ?? 0}`;
+          const cardValue = document.querySelector(`[data-score-card="${c.key}"]`);
+          if (cardValue) cardValue.textContent = data[c.key] ?? 0;
+        });
+
+        // 更新时间戳
+        const now = new Date();
+        const pad = n => n.toString().padStart(2, '0');
+        lastUpdatedEl.textContent =
+          `最后更新：${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+          `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      } catch (err) {
+        console.error('获取积分失败:', err);
+      }
+    }
+
+    // 给某个阵营 +1 积分
+    async function incrementScore(campKey) {
+      try {
+        setButtonsDisabled(true);
+        await fetch(apiBase + `/api/scores/${campKey}/increment`, {
+          method: 'POST'
+        });
+        // 加分完成后再获取一次最新积分
+        await fetchScores();
+      } catch (err) {
+        console.error('加分失败:', err);
+      } finally {
+        setButtonsDisabled(false);
+      }
+    }
+
+    // 按钮点击事件绑定
+    controlsEl.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-camp]');
+      if (!btn) return;
+      if (!canOperate) {
+        alert('当前为仅访问模式，无法加分');
+        return;
+      }
+      const campKey = btn.getAttribute('data-camp');
+      incrementScore(campKey);
+    });
+
+    // 重置按钮事件
+    document.getElementById('reset-btn').addEventListener('click', async () => {
+      if (!canOperate) {
+        alert('当前为仅访问模式，无法重置积分');
+        return;
+      }
+      const password = prompt('请输入重置密码');
+      if (password === null) return;
+      if (password !== '0712') {
+        alert('密码错误，无法重置积分');
+        return;
+      }
+
+      try {
+        setButtonsDisabled(true);
+        const res = await fetch(apiBase + '/api/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result?.error || '重置失败');
+        }
+
+        await fetchScores();
+        alert('积分已重置');
+      } catch (err) {
+        console.error(err);
+        alert(err.message || '重置失败，请稍后再试');
+      } finally {
+        setButtonsDisabled(false);
+      }
+    });
+
+    // 初次加载 + 定时刷新
+    fetchScores();
+    setInterval(fetchScores, 3000); // 每 3 秒刷新一次
+
+    // ===== 授权弹窗逻辑 =====
+    function buildAuthOverlay() {
+      const overlay = document.createElement('div');
+      overlay.className = 'auth-overlay';
+      overlay.innerHTML = `
+        <div class="auth-dialog">
+          <div class="auth-title">请选择访问模式</div>
+          <div class="auth-desc">输入密码开启加分权限；或选择仅访问模式查看积分</div>
+          <input class="auth-input" type="password" placeholder="输入密码" aria-label="密码" />
+          <div class="auth-actions">
+            <button class="auth-btn confirm">确认</button>
+            <button class="auth-btn view">仅访问</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const input = overlay.querySelector('.auth-input');
+      const confirmBtn = overlay.querySelector('.auth-btn.confirm');
+      const viewBtn = overlay.querySelector('.auth-btn.view');
+
+      confirmBtn.addEventListener('click', () => {
+        if (input.value === 'pcxy') {
+          canOperate = true;
+          setButtonsDisabled(false);
+          overlay.remove();
+        } else {
+          alert('密码错误，无法开启加分功能');
+          input.focus();
+        }
+      });
+
+      viewBtn.addEventListener('click', () => {
+        canOperate = false;
+        setButtonsDisabled(true);
+        overlay.remove();
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') confirmBtn.click();
+      });
+    }
+
+    // 默认禁用按钮，待选择模式
+    setButtonsDisabled(true);
+    buildAuthOverlay();
+  </script>
+</body>
+</html>
